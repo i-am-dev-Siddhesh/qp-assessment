@@ -1,0 +1,49 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model GroceryItem {
+  id        Int      @id @default(autoincrement())
+  name      String
+  price     Float
+  inventory Int
+  addedBy   Int      // Field to store the ID of the admin who added the item
+  admin     Admin    @relation(fields: [addedBy], references: [id])
+  bookedItems  BookedItem[]
+}
+
+// Define the schema for admin
+model Admin {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  password     String
+  email        String   @unique
+  fullName     String
+  groceryItems GroceryItem[]
+}
+
+
+// Define the schema for user
+model User {
+  id           Int         @id @default(autoincrement())
+  username     String      @unique
+  password     String
+  email        String      @unique
+  fullName     String
+  bookedItems  BookedItem[]
+}
+
+model BookedItem {
+  id            Int        @id @default(autoincrement())
+  quantity      Int
+  bookedBy      Int      
+  user          User    @relation(fields: [bookedBy], references: [id])
+  groceryItemId Int   
+  groceryItem   GroceryItem @relation(fields: [groceryItemId], references: [id])
+}
